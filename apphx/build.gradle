@@ -28,6 +28,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.0'
     testCompile 'junit:junit:4.12'
-    compile project(':easeui')
     compile 'org.greenrobot:eventbus:3.0.0'
+    compile project(':easeui')
+    compile 'com.jakewharton.timber:timber:4.3.1'
 }
