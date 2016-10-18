@@ -74,6 +74,8 @@
             android:value="P1IAcH7dXxo4P6dFwxkeEb0KHNBdi2Sf" />
         - <!--  *********地图相关功能:结束*********
   -->
+        <activity android:name=".presentation.contact.search.HxSearchContactActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

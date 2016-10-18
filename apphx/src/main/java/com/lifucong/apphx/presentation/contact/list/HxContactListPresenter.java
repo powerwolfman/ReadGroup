@@ -1,10 +1,11 @@
-package com.lifucong.apphx.presentation.contact;
+package com.lifucong.apphx.presentation.contact.list;
 
 import com.lifucong.apphx.basemvp.MvpPresenter;
 import com.lifucong.apphx.model.HxContactManager;
 import com.lifucong.apphx.model.event.HxErrorEvent;
 import com.lifucong.apphx.model.event.HxEventType;
 import com.lifucong.apphx.model.event.HxRefreshContactEvent;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 

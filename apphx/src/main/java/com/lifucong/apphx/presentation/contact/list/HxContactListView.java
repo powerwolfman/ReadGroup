@@ -1,4 +1,4 @@
-package com.lifucong.apphx.presentation.contact;
+package com.lifucong.apphx.presentation.contact.list;
 
 import com.lifucong.apphx.basemvp.MvpView;
 

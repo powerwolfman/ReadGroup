@@ -31,4 +31,5 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile project(':easeui')
     compile 'com.jakewharton.timber:timber:4.3.1'
+    compile 'com.google.code.gson:gson:2.7'
 }

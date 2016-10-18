@@ -1,13 +1,19 @@
 package com.lifucong.apphx.model;
 
+import com.google.gson.Gson;
 import com.hyphenate.EMConnectionListener;
 import com.hyphenate.EMContactListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMContactManager;
+import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.exceptions.HyphenateException;
 import com.lifucong.apphx.model.event.HxErrorEvent;
 import com.lifucong.apphx.model.event.HxEventType;
 import com.lifucong.apphx.model.event.HxRefreshContactEvent;
+import com.lifucong.apphx.model.event.HxSearchContactEvent;
+import com.lifucong.apphx.model.event.HxSimpleEvent;
+import com.lifucong.apphx.model.repository.ILocalUsersRepo;
+import com.lifucong.apphx.model.repository.IRemoteUserRepo;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -43,8 +49,13 @@ public class HxContactManager implements EMContactListener,EMConnectionListener{
     private final EventBus eventBus;
     private final EMContactManager emContactManager;
     private final ExecutorService executorService;
+    private final Gson gson;
+
+    private IRemoteUserRepo remoteUsersRepo; /** 远程用户仓库  {@link #asyncSearchContacts(String)}*/
+    private ILocalUsersRepo localUsersRepo;  /** 本地用户仓库 */
 
     private HxContactManager(){
+        gson = new Gson();
         //EventBus
         eventBus=EventBus.getDefault();
         //线程池
@@ -57,6 +68,18 @@ public class HxContactManager implements EMContactListener,EMConnectionListener{
 
     }
 
+    // 初始远程仓库
+    public HxContactManager initRemoteUserRepo(IRemoteUserRepo remoteUsersRepo){
+        this.remoteUsersRepo = remoteUsersRepo;
+        return this;
+    }
+
+    // 初始本地仓库
+    public HxContactManager initLocalUsersRepo(ILocalUsersRepo localUsersRepo){
+        this.localUsersRepo = localUsersRepo;
+        return this;
+    }
+
     //获取联系人
     public void getContact(){
         //获取过联系人（不用重复获取）
@@ -67,6 +90,28 @@ public class HxContactManager implements EMContactListener,EMConnectionListener{
         else {
             asyncGetContactsFromServer();
         }
+    }
+
+    /** 搜索用户
+     * <p/>
+     * 环信服务器不提供搜索功能，搜索完全由App和应用服务器实现*/
+    public void asyncSearchContacts(final String username){
+        Runnable runnable = new Runnable() {
+            @Override public void run() {
+                try {
+                    // 从应用服务器查询用户列表
+                    List<EaseUser> user = remoteUsersRepo.queryByName(username); // test01 test02 test03
+                    // 将查询到的接口存储到本地数据仓库中
+                    localUsersRepo.saveAll(user);
+                    // 将结果发送给Presenter
+                    eventBus.post(new HxSearchContactEvent(user));
+                } catch (Exception e) {
+                    Timber.e(e,"asyncSearchContacts");
+                    eventBus.post(new HxSearchContactEvent(e.getMessage()));
+                }
+            }
+        };
+        executorService.submit(runnable);
     }
 
     private void asyncGetContactsFromServer() {
@@ -116,6 +161,29 @@ public class HxContactManager implements EMContactListener,EMConnectionListener{
         executorService.submit(runnable);
     }
 
+
+    /**
+     * 发送好友邀请
+     */
+    public void asyncSendInvite(final String hxId) {
+        final EaseUser easeUser = localUsersRepo.getUser(currentUserId);
+
+        Runnable runnable = new Runnable() {
+            @Override public void run() {
+                try {
+                    // 添加、发送联系人邀请(理由中带过去你的用户信息)
+                    emContactManager.addContact(hxId, gson.toJson(easeUser));
+                    eventBus.post(new HxSimpleEvent(HxEventType.SEND_INVITE));
+                } catch (HyphenateException e) {
+                    Timber.e(e, "asyncSendInvite");
+                    eventBus.post(new HxErrorEvent(HxEventType.SEND_INVITE, e));
+                }
+            }
+        };
+
+        executorService.submit(runnable);
+    }
+
     public void setCurrentUser(String hxId){
         this.currentUserId=hxId;
     }
@@ -125,6 +193,9 @@ public class HxContactManager implements EMContactListener,EMConnectionListener{
         currentUserId=null;
     }
 
+    public boolean isFriend(String hxId) {
+        return contacts != null && contacts.contains(hxId);
+    }
     //start interface ConnectionListener--------------------------------
     @Override
     public void onConnected() {

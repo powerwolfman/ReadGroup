@@ -1,4 +1,4 @@
-package com.lifucong.apphx.presentation.contact;
+package com.lifucong.apphx.presentation.contact.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,7 +6,6 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -27,7 +26,7 @@ import java.util.List;
  * <p/>
  */
 
-public class HxContactListFragment extends EaseContactListFragment implements HxContactListView{
+public class HxContactListFragment extends EaseContactListFragment implements HxContactListView {
 
     private HxContactListPresenter presenter;
     private String selectedHxId;
@@ -135,7 +134,7 @@ public class HxContactListFragment extends EaseContactListFragment implements Hx
 
     @Override
     public void showDeleteContactFail(String msg) {
-        String info=getString(R.string.hx_contact_error_delete_contact);
+        String info=getString(R.string.hx_contact_error_delete_contact,msg);
         Toast.makeText(getContext(), info, Toast.LENGTH_SHORT).show();
     }
     // end-interface: HxContactListView视图接口

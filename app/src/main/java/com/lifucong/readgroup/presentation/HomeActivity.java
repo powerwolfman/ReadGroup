@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import com.lifucong.apphx.presentation.contact.HxContactListFragment;
+import com.lifucong.apphx.presentation.contact.list.HxContactListFragment;
 import com.lifucong.apphx.presentation.conversation.HxConversationListFragment;
 import com.lifucong.readgroup.R;
 import com.lifucong.readgroup.presentation.books.BooksFragment;

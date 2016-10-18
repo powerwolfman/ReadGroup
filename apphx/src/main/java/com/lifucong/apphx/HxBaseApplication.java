@@ -7,6 +7,10 @@ import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
 import com.lifucong.apphx.model.event.HxDisconnectEvent;
+import com.lifucong.apphx.model.repository.DefaultLocalUsersRepo;
+import com.lifucong.apphx.model.repository.ILocalUsersRepo;
+import com.lifucong.apphx.model.repository.IRemoteUserRepo;
+import com.lifucong.apphx.model.repository.MockRemoteUsersRepo;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,17 +34,31 @@ public abstract class HxBaseApplication extends Application {
         Timber.plant(new Timber.DebugTree());
         //初始化环信sdk和easeui库
         initEaseUI();
+
+        // 初始化apphx模块
+        initHxModule();
+
         EventBus.getDefault().register(this);
+    }
+
+    protected void initHxModule(){
+        IRemoteUserRepo remoteUsersRepo = new MockRemoteUsersRepo();
+        ILocalUsersRepo localUsersRepo = DefaultLocalUsersRepo.getInstance(this);
+        HxModuleInitializer.getInstance().init(remoteUsersRepo,localUsersRepo);
     }
 
     private void initEaseUI() {
         EMOptions options=new EMOptions();
         options.setAutoLogin(false);//关闭自动登录
-        options.setAcceptInvitationAlways(true); // 自动同意
+
+        // 默认添加好友时是不需要验证的,改为需要
+        options.setAcceptInvitationAlways(false);
+
         EMClient.getInstance().init(this,options);
         //关闭环信日志
         EMClient.getInstance().setDebugMode(false);
     }
+
     // 异常登出情况处理
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(HxDisconnectEvent event){
