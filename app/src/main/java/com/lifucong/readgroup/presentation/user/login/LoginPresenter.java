@@ -1,10 +1,12 @@
-package com.lifucong.readgroup.user.login;
+package com.lifucong.readgroup.presentation.user.login;
 
 import android.support.annotation.NonNull;
 
-import com.lifucong.apphx.HxLoginEvent;
-import com.lifucong.apphx.HxUserManager;
+import com.lifucong.apphx.model.HxUserManager;
 import com.lifucong.apphx.basemvp.MvpPresenter;
+import com.lifucong.apphx.model.event.HxErrorEvent;
+import com.lifucong.apphx.model.event.HxEventType;
+import com.lifucong.apphx.model.event.HxSimpleEvent;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -27,16 +29,22 @@ public class LoginPresenter extends MvpPresenter<LoginView>{
 
     //业务人员返结果（EventBus）
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(HxLoginEvent event){
-        //协调视图那边的变化
+    public void onEvent(HxSimpleEvent event){
+        // 判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+        // 协调视图那边的变化
         getView().hideLoading();
-        if (event.isSuccess()) {
-            getView().navigateToHome();
-        }else {
-            //协调视图那边的变化
-            String msg=String.format("失败原因 : %s",event.getErrorMessage());
-            getView().showMessage(msg);
-        }
+        getView().navigateToHome();
+    }
+
+
+    // 业务人员返结果<EventBus>
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxErrorEvent event) {
+        // 判断是否是登录失败事件
+        if (event.type != HxEventType.LOGIN) return;
+        getView().hideLoading();
+        getView().showMessage(event.toString());
     }
 
     @Override

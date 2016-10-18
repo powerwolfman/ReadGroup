@@ -1,4 +1,4 @@
-package com.lifucong.readgroup.user.login;
+package com.lifucong.readgroup.presentation.user.login;
 
 import com.lifucong.apphx.basemvp.MvpView;
 
